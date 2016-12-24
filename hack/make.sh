@@ -202,6 +202,12 @@ if \
 	HAVE_GO_TEST_COVER=1
 fi
 
+# if we do not have cover tool for go, ignore TEST_COVER
+TEST_ENABLE_COVER=
+if [ "$HAVE_GO_TEST_COVER" -eq 1 ] && [ -n "$TEST_COVERPKG" ]; then
+	TEST_ENABLE_COVER=1
+fi
+
 # a helper to provide ".exe" when it's appropriate
 binary_extension() {
 	if [ "$(go env GOOS)" = 'windows' ]; then

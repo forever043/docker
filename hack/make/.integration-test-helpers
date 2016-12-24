@@ -75,6 +75,35 @@ test_env() {
 			PATH="$PATH" \
 			TEMP="$TEMP" \
 			TEST_IMAGE_NAMESPACE="$TEST_IMAGE_NAMESPACE" \
+			TEST_ENABLE_COVER="$TEST_ENABLE_COVER" \
+			TEST_COVER_PROFILE="$TEST_COVER_PROFILE" \
 			"$@"
 	)
+}
+
+bundle_report_cover() {
+	merged=$DEST/system-merged.cov
+	rm -rf $merged
+
+	# merge all coverprofile to $DEST/system-merged.cov
+	cover_list=`find $DEST | grep "\.cov\$"`
+	echo 'mode: count' > $merged
+	for f in $cover_list; do
+		tail -q -n +2 $f >> $merged
+	done
+
+	# generate report
+	go tool cover -func=$merged -o $DEST/report.log
+	go tool cover -html=$merged -o $DEST/report.html
+
+	# output a single line coverage
+	IFS=, cover_pkgs=($TEST_COVERPKG)
+	cover_rate=`tail -n 1  $DEST/report.log | awk '{print $3}'`
+	echo
+	echo "INFO: Test coverage $cover_rate"
+	echo "INFO: Cover packages:"
+	for pkg in "${cover_pkgs[@]}"; do
+		echo "INFO:   $pkg"
+	done
+	echo "INFO: Check $DEST/report.[log|html] for detail."
 }

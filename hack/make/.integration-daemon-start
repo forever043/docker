@@ -55,6 +55,14 @@ if [  "$DOCKER_EXPERIMENTAL" ]; then
 	extra_params="$extra_params --experimental"
 fi
 
+coverprofile_params=""
+if [ -n "$TEST_ENABLE_COVER" ]; then
+	TEST_COVER_PROFILE="dockerd.cov"
+	cover_profile_path="$DEST/$TEST_COVER_PROFILE"
+	coverprofile_params="-test.run TestSystem -test.coverprofile $cover_profile_path"
+	echo "INFO: Coverage profile will be generated at $cover_profile_path."
+fi
+
 if [ -z "$DOCKER_TEST_HOST" ]; then
 	# Start apparmor if it is enabled
 	if [ -e "/sys/module/apparmor/parameters/enabled" ] && [ "$(cat /sys/module/apparmor/parameters/enabled)" == "Y" ]; then
@@ -68,7 +76,7 @@ if [ -z "$DOCKER_TEST_HOST" ]; then
 	fi
 
 	export DOCKER_HOST="unix://$(cd "$DEST" && pwd)/docker.sock" # "pwd" tricks to make sure $DEST is an absolute path, not a relative one
-	( set -x; exec \
+	( set -x; TEST_ENABLE_COVER=$TEST_ENABLE_COVER exec \
 		dockerd --debug \
 		--host "$DOCKER_HOST" \
 		--storage-driver "$DOCKER_GRAPHDRIVER" \
@@ -76,10 +84,11 @@ if [ -z "$DOCKER_TEST_HOST" ]; then
 		--userland-proxy="$DOCKER_USERLANDPROXY" \
 		$storage_params \
 		$extra_params \
+		$coverprofile_params \
 			&> "$DEST/docker.log"
 	) &
 	# make sure that if the script exits unexpectedly, we stop this daemon we just started
-	trap 'bundle .integration-daemon-stop' EXIT
+	trap 'bundle .integration-daemon-stop && bundle_report_cover' EXIT
 else
 	export DOCKER_HOST="$DOCKER_TEST_HOST"
 fi

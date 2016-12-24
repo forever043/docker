@@ -8,5 +8,9 @@ set -e
 	export LDFLAGS_STATIC_DOCKER=''
 	export BUILDFLAGS=( "${BUILDFLAGS[@]/netgo /}" ) # disable netgo, since we don't need it for a dynamic binary
 	export BUILDFLAGS=( "${BUILDFLAGS[@]/static_build /}" ) # we're not building a "static" binary here
-	source "${MAKEDIR}/.binary"
+	if [ -n "$TEST_ENABLE_COVER" ]; then
+		source "${MAKEDIR}/.covbinary"
+	else
+		source "${MAKEDIR}/.binary"
+	fi
 )

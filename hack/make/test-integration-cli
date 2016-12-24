@@ -13,6 +13,10 @@ source hack/make/.integration-test-helpers
 
 	bundle .integration-daemon-stop
 
+	if [ -n "$TEST_ENABLE_COVER" ]; then
+		bundle_report_cover
+	fi
+
 	if [ "$(go env GOOS)" != 'windows' ]
 	then
 		leftovers=$(ps -ax -o pid,cmd | awk '$2 == "docker-containerd-shim" && $4 ~ /.*\/bundles\/.*\/test-integration-cli/ { print $1 }')
