@@ -253,13 +253,13 @@ func (d *Daemon) StartWithLogFile(out *os.File, providedArgs ...string) error {
 	coverEnabled := os.Getenv("TEST_ENABLE_COVER") != ""
 	profile := os.Getenv("TEST_COVER_PROFILE")
 	if coverEnabled && profile != "" {
-		profilePath := filepath.Join(d.folder, profile)
+		profilePath := filepath.Join(d.Folder, profile)
 		// make sure the profile is not exist
 		for i := 0; ; i++ {
 			if _, err := os.Stat(profilePath); os.IsNotExist(err) {
 				break
 			} else {
-				profilePath = filepath.Join(d.folder, fmt.Sprintf("%d.%s", i, profile))
+				profilePath = filepath.Join(d.Folder, fmt.Sprintf("%d.%s", i, profile))
 			}
 		}
 		args = append(args, "-test.run", "TestSystem", "-test.coverprofile", profilePath)

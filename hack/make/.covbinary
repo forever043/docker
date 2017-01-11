@@ -33,14 +33,14 @@ fi
 
 echo "Building coverage test target: $DEST/$BINARY_FULLNAME"
 go test -c -covermode=count \
-	-coverpkg="$SOURCE_PATH/...,$TEST_COVERPKG" \
+	-coverpkg="$TEST_COVERPKG" \
 	-o "$DEST/$BINARY_FULLNAME" \
 	"${BUILDFLAGS[@]}" \
 	-ldflags "
 		$LDFLAGS
 		$LDFLAGS_STATIC_DOCKER
 	" \
-	$SOURCE_PATH
+	$GO_PACKAGE
 )
 
 echo "Created binary: $DEST/$BINARY_FULLNAME"

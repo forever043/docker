@@ -23,7 +23,7 @@
 # the case. Therefore, you don't have to disable it anymore.
 #
 
-FROM debian:jessie
+FROM hw/debian:jessie
 
 # allow replacing httpredir or deb mirror
 ARG APT_MIRROR=deb.debian.org
